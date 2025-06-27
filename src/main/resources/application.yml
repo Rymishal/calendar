@@ -1,8 +1,11 @@
 server:
-  port: ${APP_PORT:9101}
+  port: ${APP_PORT:8081}
 spring:
   datasource:
     driverClassName: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/dbname
-    username: dbuser
-    password: dbpwd
+    url: ${DB_URL:jdbc:mysql://localhost:3306/calendar_db}
+    username: ${DB_USER:db_user}
+    password: ${DB_PASSWORD:db_pwd}
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
