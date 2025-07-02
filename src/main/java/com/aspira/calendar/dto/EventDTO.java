@@ -10,7 +10,6 @@ import java.util.UUID;
 @Entity(name = "Event")
 public class EventDTO {
 
-    //TODO:Check db generation
     @Id
     @Column(name = "ID", updatable = false)
     private UUID id;

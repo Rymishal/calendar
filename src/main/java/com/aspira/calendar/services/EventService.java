@@ -3,20 +3,20 @@ package com.aspira.calendar.services;
 import com.aspira.calendar.bom.Event;
 import com.aspira.calendar.convertors.EventConvertor;
 import com.aspira.calendar.dto.EventDTO;
+import com.aspira.calendar.exception.EventNotFoundException;
+import com.aspira.calendar.exception.ForbiddenEventModificationException;
 import com.aspira.calendar.repositories.EventRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class EventService {
-
-    //TODO: Add exceptions
 
     private final EventRepository eventRepository;
 
@@ -43,25 +43,31 @@ public class EventService {
     }
 
     public Event findById(UUID id) {
-        EventDTO eventDTO = eventRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("There is no event with id: " + id));
+        EventDTO eventDTO = getEventDTOById(id);
         Event event = new Event();
         eventConvertor.fromDTO(eventDTO, event);
         return event;
     }
 
     public Event update(UUID id, Event event) {
-        EventDTO eventDTO = eventRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("There is no event with id: " + id));
+        EventDTO eventDTO = getEventDTOById(id);
         eventConvertor.toDTO(event, eventDTO);
-        eventDTO = eventRepository.save(eventDTO);
+        try {
+            eventDTO = eventRepository.save(eventDTO);
+        } catch (JpaSystemException e) {
+            throw new ForbiddenEventModificationException(e.getMessage());
+        }
         eventConvertor.fromDTO(eventDTO, event);
         return event;
     }
 
     public void delete(UUID id) {
-        EventDTO eventDTO = eventRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("There is no event with id: " + id));
+        getEventDTOById(id);
         eventRepository.deleteById(id);
+    }
+
+    private EventDTO getEventDTOById(UUID id) {
+        return eventRepository.findById(id)
+                .orElseThrow(() -> new EventNotFoundException(id.toString()));
     }
 }
