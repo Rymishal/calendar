@@ -1,13 +1,17 @@
 version: "3.8"
+
+name: calendar
+
 services:
-  db:
+  calendar_mysql:
+    container_name: calendar_mysql
     image: mysql:latest
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root_pwd
-      MYSQL_DATABASE: dbname
-      MYSQL_USER: dbuser
-      MYSQL_PASSWORD: dbpwd
+      MYSQL_DATABASE: calendar_db
+      MYSQL_USER: db_user
+      MYSQL_PASSWORD: db_pwd
     ports:
       - "3306:3306"
     volumes:
